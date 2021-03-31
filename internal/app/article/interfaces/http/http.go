@@ -9,7 +9,7 @@ import (
 )
 
 // Run start http server
-func NewHTTPServer(usecase *application.Article, c *configs.Configuration) *fhttp.Server {
+func NewHttpServer(usecase *application.Article, c *configs.Configuration) *fhttp.Server {
 
 	var opts = []fhttp.Option{}
 

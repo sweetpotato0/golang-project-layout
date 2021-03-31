@@ -9,6 +9,7 @@ import (
 	"layout/app"
 	"layout/configs"
 	"layout/internal/app/article/application"
+	"layout/internal/app/article/interfaces/grpc"
 	"layout/internal/app/article/interfaces/http"
 	"layout/internal/app/article/repository"
 )
@@ -19,7 +20,8 @@ import (
 func initApp(conf *configs.Configuration) *app.App {
 	articleRepository := repository.NewArticle(conf)
 	article := application.NewArticleUseCase(articleRepository)
-	server := http.NewHTTPServer(article, conf)
-	appApp := newApp(server)
+	server := http.NewHttpServer(article, conf)
+	grpcServer := grpc.NewGrpcServer(article, conf)
+	appApp := newApp(server, grpcServer)
 	return appApp
 }

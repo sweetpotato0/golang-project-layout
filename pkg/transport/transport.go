@@ -2,7 +2,7 @@ package transport
 
 import "context"
 
-type Transport interface {
+type Server interface {
 	Start() error
 	Stop(ctx context.Context) error
 }

@@ -18,18 +18,18 @@ type App struct {
 	ctx        context.Context
 	sigs       []os.Signal
 	cancel     func()
-	transports []transport.Transport
+	transports []transport.Server
 }
 
 // New create an app.
-func New(transports ...transport.Transport) *App {
+func New(servers ...transport.Server) *App {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	return &App{
 		ctx:        ctx,
 		cancel:     cancel,
 		sigs:       []os.Signal{syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGKILL},
-		transports: transports,
+		transports: servers,
 	}
 }
 
@@ -41,12 +41,13 @@ func (a *App) Run() error {
 	g, ctx := errgroup.WithContext(a.ctx)
 
 	for _, transport := range a.transports {
+		server := transport
 		g.Go(func() error {
-			<-ctx.Done() // wait for stop signal
-			return transport.Stop(ctx)
+			<-ctx.Done()
+			return server.Stop(ctx)
 		})
 		g.Go(func() error {
-			return transport.Start()
+			return server.Start()
 		})
 	}
 

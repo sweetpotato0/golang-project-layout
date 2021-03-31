@@ -3,12 +3,15 @@ package http
 import (
 	"context"
 	"fmt"
-	"layout/configs"
 	"net/http"
 	"time"
 
+	"layout/pkg/transport"
+
 	"github.com/gin-gonic/gin"
 )
+
+var _ transport.Server = (*Server)(nil)
 
 type RequestFunc func(context.Context, *http.Request) context.Context
 
@@ -17,7 +20,6 @@ type ResponseFunc func(context.Context, http.ResponseWriter) context.Context
 type Server struct {
 	*gin.Engine
 	server  *http.Server
-	conf    *configs.HTTPConf
 	addr    string
 	port    int
 	timeout time.Duration
