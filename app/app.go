@@ -3,46 +3,52 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"layout/pkg/transport/http"
+	"layout/pkg/transport"
 
 	"golang.org/x/sync/errgroup"
 )
 
 // App is an application components lifecycle manager
 type App struct {
-	ctx    context.Context
-	sigs   []os.Signal
-	cancel func()
-	hs     *http.Server
+	ctx        context.Context
+	sigs       []os.Signal
+	cancel     func()
+	transports []transport.Transport
 }
 
 // New create an app.
-func New(hs *http.Server) *App {
+func New(transports ...transport.Transport) *App {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	return &App{
-		ctx:    ctx,
-		cancel: cancel,
-		sigs:   []os.Signal{syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT},
-		hs:     hs,
+		ctx:        ctx,
+		cancel:     cancel,
+		sigs:       []os.Signal{syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGKILL},
+		transports: transports,
 	}
 }
 
 // Run .
 func (a *App) Run() error {
 
+	fmt.Println("server starting...")
+
 	g, ctx := errgroup.WithContext(a.ctx)
-	g.Go(func() error {
-		<-ctx.Done() // wait for stop signal
-		return a.hs.Stop()
-	})
-	g.Go(func() error {
-		return a.hs.Start()
-	})
+
+	for _, transport := range a.transports {
+		g.Go(func() error {
+			<-ctx.Done() // wait for stop signal
+			return transport.Stop(ctx)
+		})
+		g.Go(func() error {
+			return transport.Start()
+		})
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, a.sigs...)
@@ -52,14 +58,21 @@ func (a *App) Run() error {
 			case <-ctx.Done():
 				return ctx.Err()
 			case <-c:
-				a.Stop()
+				return a.Stop()
 			}
 		}
 	})
+
 	if err := g.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		print(err)
 		return err
 	}
+
+	fmt.Println("server stoped.")
 	return nil
 }
 
-func (a *App) Stop() {}
+func (a *App) Stop() error {
+	a.cancel()
+	return nil
+}

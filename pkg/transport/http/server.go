@@ -16,6 +16,7 @@ type ResponseFunc func(context.Context, http.ResponseWriter) context.Context
 
 type Server struct {
 	*gin.Engine
+	server  *http.Server
 	conf    *configs.HTTPConf
 	addr    string
 	port    int
@@ -55,25 +56,32 @@ func Timeout(timeout time.Duration) Option {
 	}
 }
 
-func New(options ...Option) *Server {
+func New(mode string, options ...Option) *Server {
 
-	server := &Server{
+	gin.SetMode(mode)
+
+	srv := &Server{
 		Engine: gin.New(),
 	}
 	for _, option := range options {
-		option(server)
+		option(srv)
 	}
 
-	server.Use(gin.Logger())
-	server.Use(gin.Recovery())
+	srv.server = &http.Server{
+		Addr:    fmt.Sprintf("%s:%d", srv.addr, srv.port),
+		Handler: srv,
+	}
 
-	return server
+	srv.Use(gin.Logger())
+	srv.Use(gin.Recovery())
+
+	return srv
 }
 
 func (s *Server) Start() error {
-	return s.Run(fmt.Sprintf("%s:%d", s.addr, s.port))
+	return s.server.ListenAndServe()
 }
 
-func (s *Server) Stop() error {
-	return nil
+func (s *Server) Stop(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }

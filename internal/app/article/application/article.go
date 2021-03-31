@@ -5,6 +5,7 @@ import (
 
 	"layout/internal/app/article/domain/entity"
 	"layout/internal/app/article/domain/repository"
+	"layout/internal/app/article/domain/vo"
 )
 
 // Article provides use-case
@@ -18,13 +19,36 @@ func NewArticleUseCase(rep repository.ArticleRepository) *Article {
 }
 
 // GetUser returns user
-func (i Article) GetArticle(ctx context.Context, id int) (*entity.Article, error) {
-	return i.articleRepo.Get(ctx, id)
+func (i Article) GetArticle(ctx context.Context, id int) (*vo.Article, error) {
+	a, err := i.articleRepo.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &vo.Article{
+		ID:      a.ID,
+		Title:   a.Title,
+		Content: a.Content,
+	}, nil
 }
 
 // GetUsers returns user list
-func (i Article) GetArticles(ctx context.Context) ([]*entity.Article, error) {
-	return i.articleRepo.GetAll(ctx)
+func (i Article) GetArticles(ctx context.Context) ([]*vo.Article, error) {
+	as, err := i.articleRepo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	articles := []*vo.Article{}
+	for _, a := range as {
+		articles = append(articles, &vo.Article{
+			ID:      a.ID,
+			Title:   a.Title,
+			Content: a.Content,
+		})
+	}
+
+	return articles, nil
 }
 
 // AddArticle saves new article

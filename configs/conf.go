@@ -30,9 +30,9 @@ type Configuration struct {
 }
 
 type ServerConf struct {
-	Debug bool
-	Http  *HTTPConf
-	Grpc  *GRPCConf
+	Mode string
+	Http *HTTPConf
+	Grpc *GRPCConf
 }
 
 type HTTPConf struct {

@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"layout/internal/app/article/application"
-	"layout/internal/app/article/domain/entity"
+	"layout/internal/app/article/domain/vo"
 
 	fhttp "layout/pkg/transport/http"
 
@@ -33,7 +33,7 @@ func (h Handler) getArticle(ctx *gin.Context) {
 
 	article, err := h.UseCase.GetArticle(ctx, id)
 	if err != nil {
-		ctx.String(http.StatusNotFound, err.Error()+"failed to get article")
+		ctx.String(http.StatusNotFound, err.Error()+" failed to get article")
 		return
 	}
 	ctx.JSON(http.StatusOK, article)
@@ -43,11 +43,11 @@ func (h Handler) getArticles(ctx *gin.Context) {
 
 	articles, err := h.UseCase.GetArticles(ctx)
 	if err != nil {
-		ctx.String(http.StatusNotFound, err.Error()+"failed to get article list")
+		ctx.String(http.StatusNotFound, err.Error()+" failed to get article list")
 		return
 	}
 	type payload struct {
-		Articles []*entity.Article `json:"articles"`
+		Articles []*vo.Article `json:"articles"`
 	}
 	ctx.JSON(http.StatusOK, payload{Articles: articles})
 }

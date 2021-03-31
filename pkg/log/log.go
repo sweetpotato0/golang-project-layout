@@ -15,11 +15,14 @@ func init() {
 	logrus.SetOutput(os.Stdout)
 
 	// Only log the warning severity or above.
-	logrus.SetLevel(logrus.WarnLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 }
 
 func Fatal(args ...interface{}) {
 	logrus.Fatal(args...)
+}
+func Info(args ...interface{}) {
+	logrus.Info(args...)
 }
 
 func Errorf(format string, args ...interface{}) {

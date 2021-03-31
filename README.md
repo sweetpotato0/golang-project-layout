@@ -5,12 +5,16 @@
 启动
 
 使用 `wire` 生成项目依赖
-> cd cmd/article
-> wire
+```sh
+cd cmd/article
+wire
+```
 
 构建运行
-> go build -o ./bin/ ./...
-> ./bin/article
+```sh
+go build -o ./bin/ ./...
+./bin/article
+```
 
 configs中的 `toml` 文件进行 Mysql、Redis 配置，然后进行数据库创建：
 ```sql
@@ -19,3 +23,11 @@ insert into articles(id, title, content) values(1, 'title', 'content');
 ```
 
 浏览器输入 http://127.0.0.1:8080/articles 可以看到对应的效果
+
+# TODO
+
+- [ ] http server 增加中间件
+- [ ] config app 独立开
+- [ ] 增加 grpc
+- [ ] 接入sentry
+- [ ] 接入jaeger

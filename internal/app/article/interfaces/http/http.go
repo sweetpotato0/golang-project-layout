@@ -23,7 +23,7 @@ func NewHTTPServer(usecase *application.Article, c *configs.Configuration) *fhtt
 		opts = append(opts, fhttp.Timeout(time.Duration(c.Server.Http.Timeout)*time.Second))
 	}
 
-	server := fhttp.New(opts...)
+	server := fhttp.New(c.Server.Mode, opts...)
 	h := Handler{
 		UseCase: usecase,
 	}
