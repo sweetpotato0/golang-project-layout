@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package api.article.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "api/article/v1";
+
+// The Article service definition.
+service Article {
+
+  rpc ListArticles (ArticlesRequest) returns (ArticlesResponse) {
+    option (google.api.http) = {
+        get: "/v1/articles"
+    };
+  }
+
+  rpc GetArticle (ArticlesRequest) returns (ArticlesResponse) {
+    option (google.api.http) = {
+        get: "/v1/article/:id"
+    };
+  }
+
+}
+
+// The request message containing the user's name.
+message ArticlesRequest {
+  int64 page = 1;
+  int64 num = 2;
+}
+
+// The response message containing the greetings
+message ArticlesResponse {
+    message Article {
+      int64 id = 1;
+      string title = 2;
+      string content = 3;
+    }
+    repeated Article results = 1;
+}

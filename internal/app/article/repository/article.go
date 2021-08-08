@@ -4,13 +4,16 @@ import (
 	"context"
 	"database/sql"
 
+	"layout/api/user/v1"
 	"layout/configs"
 	"layout/internal/app/article/domain/entity"
 	"layout/internal/app/article/domain/po"
 	"layout/internal/app/article/domain/repository"
 	fentity "layout/internal/pkg/entity"
 	"layout/internal/pkg/store"
+	"layout/pkg/transport/grpc"
 
+	// init mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -19,20 +22,32 @@ var _ repository.ArticleRepository = (*Article)(nil)
 
 // Article Implements repository.ArticleRepository
 type Article struct {
-	conn  *sql.DB
-	cache store.EntityCache //实体缓存组件
+	conn   *sql.DB
+	userv1 v1.UserClient
+	cache  store.EntityCache //实体缓存组件
 }
 
+// NewArticle .
 func NewArticle(c *configs.Configuration) repository.ArticleRepository {
 	conn, err := sql.Open("mysql", c.DB.Addr)
 	if err != nil {
 		panic(err)
 	}
 
-	a := &Article{conn: conn, cache: store.New(c.Redis)}
+	a := &Article{conn: conn, cache: store.New(c.Redis), userv1: newUserClient(c)}
 	a.GetCacheFunc()
 
 	return a
+}
+
+func newUserClient(c *configs.Configuration) v1.UserClient {
+	ctx := context.Background()
+	conn, err := grpc.NewGrpcConn(ctx, "user_service", c)
+	if err != nil {
+		panic(err)
+	}
+
+	return v1.NewUserClient(conn)
 }
 
 // GetCacheFunc .
@@ -59,6 +74,14 @@ func (repo *Article) Get(ctx context.Context, id int) (*entity.Article, error) {
 	article := &entity.Article{Article: po.Article{ID: id}}
 
 	return article, repo.cache.GetEntity(article)
+}
+
+// GetArticleUser .
+func (repo *Article) GetArticleUser(ctx context.Context, id int64) (*v1.GetUserReply, error) {
+	req := &v1.GetUserReq{
+		Id: id,
+	}
+	return repo.userv1.GetUser(ctx, req)
 }
 
 // GetAll .

@@ -14,11 +14,12 @@ type Article struct {
 	// userRepo    repository.UserRepository
 }
 
+// NewArticleUseCase .
 func NewArticleUseCase(rep repository.ArticleRepository) *Article {
 	return &Article{articleRepo: rep}
 }
 
-// GetUser returns user
+// GetArticle returns article
 func (i Article) GetArticle(ctx context.Context, id int) (*vo.Article, error) {
 	a, err := i.articleRepo.Get(ctx, id)
 	if err != nil {
@@ -32,7 +33,20 @@ func (i Article) GetArticle(ctx context.Context, id int) (*vo.Article, error) {
 	}, nil
 }
 
-// GetUsers returns user list
+// GetArticleUser returns article
+func (i Article) GetArticleUser(ctx context.Context, id int64) (*vo.ArticleUser, error) {
+	a, err := i.articleRepo.GetArticleUser(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &vo.ArticleUser{
+		ID:   a.Id,
+		Name: a.Name,
+	}, nil
+}
+
+// GetArticles returns article list
 func (i Article) GetArticles(ctx context.Context) ([]*vo.Article, error) {
 	as, err := i.articleRepo.GetAll(ctx)
 	if err != nil {

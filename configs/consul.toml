@@ -1,0 +1,4 @@
+addr = "0.0.0.0:8500"
+critical = 1
+interval = 10
+ticket = 2000

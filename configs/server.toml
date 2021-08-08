@@ -1,4 +1,4 @@
-mode = "debug"  # release"
+mode = "release"  # "debug"
 
 [http]
 addr = "127.0.0.1"
@@ -6,6 +6,7 @@ port = 8080
 timeout = 1
 
 [grpc]
-addr = "127.0.0.1"
-port = 8080
-timeout = 1
+addr = "0.0.0.0:8090"
+port = 8090
+timeout = 2
+network = "tcp"

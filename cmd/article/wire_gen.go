@@ -20,7 +20,7 @@ import (
 func initApp(conf *configs.Configuration) *app.App {
 	articleRepository := repository.NewArticle(conf)
 	article := application.NewArticleUseCase(articleRepository)
-	server := http.NewHttpServer(article, conf)
+	server := http.NewHTTPServer(article, conf)
 	grpcServer := grpc.NewGrpcServer(article, conf)
 	appApp := newApp(server, grpcServer)
 	return appApp

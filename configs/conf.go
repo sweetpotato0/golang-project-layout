@@ -17,6 +17,7 @@ func Get() *Configuration {
 			Server: newServerConf(),
 			DB:     newDBConf(),
 			Redis:  newRedisConf(),
+			Consul: newConsulConf(),
 		}
 	})
 	return cfg
@@ -27,23 +28,38 @@ type Configuration struct {
 	Server *ServerConf
 	DB     *DBConf
 	Redis  *RedisConf
+	Consul *ConsulConf
 }
 
+// ServerConf .
 type ServerConf struct {
 	Mode string
-	Http *HTTPConf
+	HTTP *HTTPConf
 	Grpc *GRPCConf
 }
 
+// HTTPConf .
 type HTTPConf struct {
 	Addr    string
 	Port    int
 	Timeout int
 }
 
+// ConsulConf .
+type ConsulConf struct {
+	Addr     string
+	Name     string
+	Port     int
+	Critical int
+	Interval int
+	Ticket   int
+}
+
+// GRPCConf .
 type GRPCConf struct {
 	Addr    string
 	Port    int
+	Network string
 	Timeout int
 }
 
@@ -81,6 +97,14 @@ func newServerConf() *ServerConf {
 func newDBConf() *DBConf {
 	result := &DBConf{}
 	if _, err := toml.DecodeFile("configs/db.toml", result); err != nil {
+		panic(err)
+	}
+	return result
+}
+
+func newConsulConf() *ConsulConf {
+	result := &ConsulConf{}
+	if _, err := toml.DecodeFile("configs/consul.toml", result); err != nil {
 		panic(err)
 	}
 	return result

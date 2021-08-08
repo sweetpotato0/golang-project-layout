@@ -47,7 +47,7 @@ func (a *App) Run() error {
 			return server.Stop(ctx)
 		})
 		g.Go(func() error {
-			return server.Start()
+			return server.Start(ctx)
 		})
 	}
 
@@ -65,7 +65,6 @@ func (a *App) Run() error {
 	})
 
 	if err := g.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		print(err)
 		return err
 	}
 
@@ -73,6 +72,7 @@ func (a *App) Run() error {
 	return nil
 }
 
+// Stop stop the app.
 func (a *App) Stop() error {
 	a.cancel()
 	return nil

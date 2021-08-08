@@ -21,7 +21,24 @@ type Handler struct {
 func ArticleRoutes(engine *fhttp.Server, h Handler) {
 	engine.GET("/article/:id", h.getArticle)
 	engine.GET("/articles", h.getArticles)
+	engine.GET("/article/:id/user", h.getArticleUser)
 	engine.POST("/article", h.createArticle)
+}
+
+func (h Handler) getArticleUser(ctx *gin.Context) {
+
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.String(http.StatusNotFound, err.Error())
+		return
+	}
+
+	article, err := h.UseCase.GetArticleUser(ctx, id)
+	if err != nil {
+		ctx.String(http.StatusNotFound, err.Error()+" failed to get article")
+		return
+	}
+	ctx.JSON(http.StatusOK, article)
 }
 
 func (h Handler) getArticle(ctx *gin.Context) {
